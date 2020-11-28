@@ -6,6 +6,10 @@
     <PackageVersion>3.1.8</PackageVersion>
     <Title>DRN.EntityFramework.ExtendedMultiTenancy</Title>
     <Authors>direncan çatalkaya</Authors>
+    <Description>Easy Multi Tenancy System</Description>
+    <PackageProjectUrl>https://github.com/direncancatalkaya/ExtendedMultiTenancy</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/direncancatalkaya/ExtendedMultiTenancy</RepositoryUrl>
+    <PackageTags>.net Core , C# , Multi Tenancy, Data Isolation , Soft Delete</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

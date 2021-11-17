@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace EntityFramework.ExtensionUtilities.ModelCache
 {
-    public class ExtendedModelCacheKey<TTenantId, TUserId> : ModelCacheKey where TUserId : struct
+    public class ExtendedModelCacheKey<TTenantId, TUserId> : ModelCacheKey
     {
-        private readonly TTenantId _tenantId;
         private readonly bool _isAdminContext;
+        private readonly TTenantId _tenantId;
 
         public ExtendedModelCacheKey(Microsoft.EntityFrameworkCore.DbContext context) : base(context)
         {
@@ -16,22 +16,26 @@ namespace EntityFramework.ExtensionUtilities.ModelCache
 
         protected override bool Equals(ModelCacheKey other)
         {
-            bool result = ((ExtendedModelCacheKey<TTenantId, TUserId>) other)._tenantId.Equals(_tenantId);
-            bool result2 = ((ExtendedModelCacheKey<TTenantId, TUserId>) other)._isAdminContext.Equals(_isAdminContext);
-            return (result && result2);
+            var result = ((ExtendedModelCacheKey<TTenantId, TUserId>) other)._tenantId.Equals(_tenantId);
+            var result2 = ((ExtendedModelCacheKey<TTenantId, TUserId>) other)._isAdminContext.Equals(_isAdminContext);
+            return result && result2;
         }
     }
 
-    public sealed class ExtendedModelCacheKeyFactory<TTenantId, TUserId> : ModelCacheKeyFactory
-        where TUserId : struct
+    public sealed class ExtendedModelCacheKeyFactory<TTenantId, TUserId> : IModelCacheKeyFactory
     {
-        public override object Create(Microsoft.EntityFrameworkCore.DbContext context)
+        public ExtendedModelCacheKeyFactory(ModelCacheKeyFactoryDependencies dependencies)
+        {
+        }
+
+        public  object Create(Microsoft.EntityFrameworkCore.DbContext context)
         {
             return new ExtendedModelCacheKey<TTenantId, TUserId>(context);
         }
-
-        public ExtendedModelCacheKeyFactory(ModelCacheKeyFactoryDependencies dependencies) : base(dependencies)
+        
+        public  object Create(Microsoft.EntityFrameworkCore.DbContext context,bool designTime)
         {
+            return new ExtendedModelCacheKey<TTenantId, TUserId>(context);
         }
     }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MultiTenancyTest.DbContext;
 using MultiTenancyTest.Entities;
@@ -18,10 +17,10 @@ namespace MultiTenancyTest.Tests
             var dbContext = new TestDbContext(1, 1, Root, true);
             var products = new List<Product>
             {
-                new Product {Name = "Product1", TenantId = 1, IsDeleted = true},
-                new Product {Name = "Product2", TenantId = 1, IsDeleted = true},
-                new Product {Name = "Product3", TenantId = 1},
-                new Product {Name = "Product4", TenantId = 1},
+                new() {Name = "Product1", CustomerId = 1, IsDeleted = true},
+                new() {Name = "Product2", CustomerId = 1, IsDeleted = true},
+                new() {Name = "Product3", CustomerId = 1},
+                new() {Name = "Product4", CustomerId = 1}
             };
             dbContext.Products.AddRange(products);
             dbContext.SaveChanges();
@@ -40,8 +39,8 @@ namespace MultiTenancyTest.Tests
             var dbContext = new TestDbContext(1, 1);
             var products = new List<Product>
             {
-                new Product {Name = "Product1"},
-                new Product {Name = "Product2"}
+                new() {Name = "Product1"},
+                new() {Name = "Product2"}
             };
             dbContext.Products.AddRange(products);
             dbContext.SaveChanges();
@@ -53,9 +52,9 @@ namespace MultiTenancyTest.Tests
             var deletedProductForInspect = dbContext.Products.IgnoreQueryFilters()
                 .FirstOrDefault(product => product.Name == "Product1");
 
-            Assert.AreEqual(deletedProduct.IsDeleted, true);
-            Assert.AreEqual(deletedProduct.DeletedBy, 1);
-            Assert.IsTrue(deletedProduct.DeletedAt >= DateTime.UtcNow.AddMinutes(-1));
+            Assert.AreEqual(deletedProductForInspect.IsDeleted, true);
+            Assert.AreEqual(deletedProductForInspect.DeletedBy, 1);
+            Assert.IsTrue(deletedProductForInspect.DeletedAt >= DateTime.UtcNow.AddMinutes(-1));
         }
     }
 }

@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MultiTenancyTest.DbContext;
 using MultiTenancyTest.Entities;
@@ -12,17 +10,15 @@ namespace MultiTenancyTest.Tests
     [TestClass]
     public class MultiTenancy : BaseTestClass
     {
-       
-
         [TestMethod]
         public void MultiTenancy_Global_Filter_Should_Isolate_Other_Tenants_Data()
         {
             var dbContext = new TestDbContext(1, 1, Root, true);
             var products = new List<Product>
             {
-                new Product {Name = "Product1", TenantId = 1},
-                new Product {Name = "Product2", TenantId = 1},
-                new Product {Name = "Product3", TenantId = 2}
+                new() {Name = "Product1", CustomerId = 1},
+                new() {Name = "Product2", CustomerId = 1},
+                new() {Name = "Product3", CustomerId = 2}
             };
             dbContext.Products.AddRange(products);
             dbContext.SaveChanges();
@@ -50,7 +46,7 @@ namespace MultiTenancyTest.Tests
 
             var addedProduct = dbContext.Products.FirstOrDefault(product => product.Name == "Product4");
 
-            Assert.AreEqual(addedProduct.TenantId, 1);
+            Assert.AreEqual(addedProduct.CustomerId, 1);
         }
 
         [TestMethod]
@@ -63,7 +59,7 @@ namespace MultiTenancyTest.Tests
 
             var addedProduct = dbContext.Products.FirstOrDefault(product => product.Name == "Product5");
 
-            Assert.AreEqual(addedProduct.TenantId, 1);
+            Assert.AreEqual(addedProduct.CustomerId, 1);
         }
     }
 }

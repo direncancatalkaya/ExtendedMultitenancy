@@ -15,7 +15,7 @@ namespace MultiTenancyTest.Tests
             var dbContext = new TestDbContext(3, 2);
 
             var addedProduct = new Product {Name = "Product10"};
-            dbContext.Products.Add((addedProduct));
+            dbContext.Products.Add(addedProduct);
             dbContext.SaveChanges();
 
             var updatedProduct = dbContext.Products.FirstOrDefault(product => product.Name == "Product10");
@@ -26,9 +26,9 @@ namespace MultiTenancyTest.Tests
             var productForInspect = dbContext.Products.FirstOrDefault(product => product.Name == "Product20");
 
             Assert.AreEqual(productForInspect.CreatedBy, 2);
-            Assert.AreEqual(productForInspect.ModifiedBy, 2);
+            Assert.AreEqual(productForInspect.UpdatedBy, 2);
             Assert.IsTrue(productForInspect.CreatedAt >= DateTime.UtcNow.AddMinutes(-1));
-            Assert.IsTrue(productForInspect.ModifiedAt >= DateTime.UtcNow.AddMinutes(-1));
+            Assert.IsTrue(productForInspect.UpdatedAt >= DateTime.UtcNow.AddMinutes(-1));
         }
     }
 }

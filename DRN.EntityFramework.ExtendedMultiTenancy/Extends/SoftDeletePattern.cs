@@ -24,7 +24,7 @@ namespace EntityFramework.ExtensionUtilities.Extends
         }
 
         private static void ConfigureSoftDeleteFilters<TEntity, TUserId>(ModelBuilder modelBuilder,
-            IMutableEntityType entityType) where TEntity : class where TUserId : struct
+            IMutableEntityType entityType) where TEntity : class
         {
             if (!ShouldFilterSoftDelete<TUserId>(entityType)) return;
             var softDeleteExpression = CreateSoftDeleteExpression<TEntity, TUserId>();
@@ -32,14 +32,12 @@ namespace EntityFramework.ExtensionUtilities.Extends
         }
 
         private static bool ShouldFilterSoftDelete<TUserId>(IMutableEntityType entityType)
-            where TUserId : struct
         {
             return typeof(ISoftDelete<TUserId>).IsAssignableFrom(entityType.ClrType);
         }
 
         private static Expression<Func<TEntity, bool>> CreateSoftDeleteExpression<TEntity, TUserId>()
             where TEntity : class
-            where TUserId : struct
         {
             Expression<Func<TEntity, bool>> removedFilter = e => ((ISoftDelete<TUserId>) e).IsDeleted == false;
             return removedFilter;

@@ -43,7 +43,7 @@ namespace EntityFramework.ExtensionUtilities.Extends
             where TEntity : class
         {
             Expression<Func<TEntity, bool>> multiTenancyFilter =
-                e => ((ITenant<TTenantId>) e).TenantId.Equals(tenantId);
+                e => ((ITenant<TTenantId>) e).CustomerId.Equals(tenantId);
             return multiTenancyFilter;
         }
     }

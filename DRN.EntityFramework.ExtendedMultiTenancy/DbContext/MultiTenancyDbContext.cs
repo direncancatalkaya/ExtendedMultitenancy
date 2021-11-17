@@ -10,29 +10,33 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace EntityFramework.ExtensionUtilities.DbContext
 {
     /// <summary>
-    ///  This db context provides multi tenancy , soft delete pattern and audit log on db objects.
+    ///     This db context provides multi tenancy , soft delete pattern and audit log on db objects.
     /// </summary>
     /// <typeparam name="TTenantId">TenantId Property Type Of Application</typeparam>
     /// <typeparam name="TUserId">UserId Property Type Of Application</typeparam>
     public class MultiTenancyDbContext<TTenantId, TUserId> : Microsoft.EntityFrameworkCore.DbContext
-        where TUserId : struct
     {
+        internal readonly bool _isAdminContext;
         internal readonly TTenantId TenantId;
         internal readonly TUserId UserId;
-        internal readonly bool _isAdminContext;
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="tenantId">Tenant Id Value Of Current Tenant</param>
         /// <param name="userId"> User Id Value Of Current User</param>
-        /// <param name="isAdminContext">if you set this parameter to true ; data isolation, AuditLogging and SoftDelete become disabled.
+        /// <param name="isAdminContext">
+        ///     if you set this parameter to true ; data isolation, AuditLogging and SoftDelete become disabled.
         /// </param>
         public MultiTenancyDbContext(TTenantId tenantId, TUserId userId, bool isAdminContext = false)
         {
             TenantId = tenantId;
             UserId = userId;
             _isAdminContext = isAdminContext;
+        }
+
+        public MultiTenancyDbContext()
+        {
+            _isAdminContext = true;
         }
 
         public override int SaveChanges()
@@ -44,6 +48,7 @@ namespace EntityFramework.ExtensionUtilities.DbContext
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.ReplaceService<IModelCacheKeyFactory, ExtendedModelCacheKeyFactory<TTenantId, TUserId>>();
+            base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -53,6 +58,8 @@ namespace EntityFramework.ExtensionUtilities.DbContext
                 modelBuilder.ApplySoftDeletePattern(UserId);
                 modelBuilder.ApplyMultiTenancy(TenantId);
             }
+
+            base.OnModelCreating(modelBuilder);
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -85,21 +92,21 @@ namespace EntityFramework.ExtensionUtilities.DbContext
                         case EntityState.Deleted when entry.Entity is ISoftDelete<TUserId> softDeletedEntry:
                             entry.State = EntityState.Modified;
                             softDeletedEntry.IsDeleted = true;
-                            softDeletedEntry.DeletedAt = DateTime.UtcNow;
+                            softDeletedEntry.DeletedAt = DateTime.Now;
                             softDeletedEntry.DeletedBy = UserId;
                             break;
                         case EntityState.Modified when entry.Entity is IAuditLog<TUserId> modifiedAuditLogEntry:
-                            modifiedAuditLogEntry.ModifiedAt = DateTime.UtcNow;
-                            modifiedAuditLogEntry.ModifiedBy = UserId;
+                            modifiedAuditLogEntry.UpdatedAt = DateTime.Now;
+                            modifiedAuditLogEntry.UpdatedBy = UserId;
                             break;
                         case EntityState.Added when entry.Entity is IAuditLog<TUserId> addedAuditLogEntry:
-                            addedAuditLogEntry.CreatedAt = DateTime.UtcNow;
+                            addedAuditLogEntry.CreatedAt = DateTime.Now;
                             addedAuditLogEntry.CreatedBy = UserId;
                             break;
                     }
 
                     if (entry.State == EntityState.Added && entry.Entity is ITenant<TTenantId> tenantEntity)
-                        tenantEntity.TenantId = TenantId;
+                        tenantEntity.CustomerId = TenantId;
                 }
             }
         }

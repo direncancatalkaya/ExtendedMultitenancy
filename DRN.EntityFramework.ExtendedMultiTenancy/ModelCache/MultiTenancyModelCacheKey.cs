@@ -35,6 +35,7 @@ namespace EntityFramework.ExtensionUtilities.ModelCache
         
         public  object Create(Microsoft.EntityFrameworkCore.DbContext context,bool designTime)
         {
+            if(designTime) return this;
             return new ExtendedModelCacheKey<TTenantId, TUserId>(context);
         }
     }
